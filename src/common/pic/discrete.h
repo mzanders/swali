@@ -16,8 +16,10 @@ extern "C" {
 uint8_t discrete_read(uint8_t id);
 void discrete_write(uint8_t id, uint8_t value);
 
-#define GREEN_LED_ID 255
-#define PUSHBUTTON_ID 255
+#define GREEN_LED_ID 254
+#define PUSHBUTTON_ID 254
+
+#define DISC_UNUSED 255
 
 #ifdef	__cplusplus
 }

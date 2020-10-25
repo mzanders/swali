@@ -79,6 +79,9 @@ void swali_input_process(swali_input_data_t * data)
         }
         data->last_switch_state = 0;
     }
+    
+    // HASSELT SPECIFIC & TEMPORARY: output the status
+    discrete_write(data->swali_channel, data->state);
 }
 
 // DO NOT send events from this function as it would cause recursion
@@ -204,7 +207,7 @@ static void send_button_event(swali_input_data_t * data, uint8_t state)
 void swali_input_service_tick(swali_input_data_t * data, uint8_t counter)
 {
     uint8_t discrete;
-
+    
     if ((data->swali_channel % SAMPLE_MODULUS) == (counter % SAMPLE_MODULUS))
     {
         // by default, we invert the button logic (pull-up)
