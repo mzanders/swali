@@ -1,0 +1,20 @@
+.pypirc
+pip-selfcheck.json
+# Python stuff
+*.py[cod]
+
+# IDE stuff
+.idea/
+*.iml
+
+# Python venv stuff
+bin
+lib
+pyvenv.cfg
+
+# Folders
+dist/
+
+# Python setuptools
+.cache
+*.egg-info

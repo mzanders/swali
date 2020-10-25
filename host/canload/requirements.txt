@@ -1,0 +1,4 @@
+aenum==2.2.3
+intelhex==2.2.1
+python-can==3.3.2
+wrapt==1.11.2
