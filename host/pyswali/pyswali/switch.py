@@ -1,12 +1,5 @@
-import asyncio
-import struct
-
 from .channel import Channel
-
-from .vscp.tcp import TCP
-from .vscp.event import Event
 from .vscp.const import (CLASS_INFORMATION, EVENT_INFORMATION_BUTTON)
-
 from .vscp.util import read_reg
 
 IDENTIFIER = 'IN'

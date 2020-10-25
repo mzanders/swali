@@ -1,10 +1,8 @@
-import asyncio
-from .vscp.util import scan_nodes, read_reg
+from .vscp.util import who_is_there, read_reg, read_std_reg
 from .vscp.tcp import TCP
 from .vscp.filter import Filter
-from .vscp.event import Event
-from .channel import channel_reg
 from .node import Node
+from .channel import channel_reg
 
 class Gateway(TCP):
     """This class connects to the SWALI VSCP Gateway."""
@@ -14,7 +12,7 @@ class Gateway(TCP):
 
         self.node = dict() # list of nodes
         self.ch = dict() # list of channels for each channel class
-        self.ev = dict() # event sensitivity list
+        self.ev = dict() # event sensitivity list, key = event type, value = list of classes for this type
 
         for channel_type in channel_reg:
             self.ch[channel_type] = dict()
@@ -38,24 +36,26 @@ class Gateway(TCP):
         await self.rcvloop(self._process_event)
 
     async def scan(self):
-        """Scan a gateway for SWALI devices, build a channel list"""
-        print('scanning for VSCP CAN nodes...')
-        nodes = await scan_nodes(self)
-        nicknames = [nick for nick, node in nodes.items()
-                     if node['stddev']==b'SWALI\0\0\0']
+        """Scan a gateway for SWALI devices, build the channel lists"""
+        print('Scanning for VSCP SWALI CAN nodes.')
 
-        for nickname in nicknames:
-            self.node[nickname] = Node(self, **nodes[nickname])
-            print('Nickname: {} - UID: {} - Channels: {}'.format(nickname, nodes[nickname]['uid'], nodes[nickname]['pages']))
+        await self.quitloop()
+        nodes = dict()
 
-            for channel in range(nodes[nickname]['pages']):
-                channel_type = (await read_reg(self, nickname, channel, 0, num=2)).decode("utf-8")
-                if channel_type in channel_reg:
-                    self.ch[channel_type][(nickname, channel)] = \
-                        await channel_reg[channel_type].new(self, nickname, channel)
+        for nickname in range(128):
+            (guid, mdf) = await who_is_there(self, nickname)
+
+            if (guid, mdf) != (None, None):
+                node = await Node.new(self, nickname, guid, mdf)
+                nodes[nickname] = node
+                if node.is_swali:
+                    for channel_type in channel_reg:
+                        self.ch[channel_type].update(node.channels[channel_type])
+
+        for nickname in nodes:
+            print('Nickname: {} - Channels: {} - Swali: {}'.format(nickname, nodes[nickname].pages, nodes[nickname].is_swali))
 
     def get_channels(self, identifier):
-        print(self.ch)
         return [obj for loc, obj in self.ch[identifier].items()]
 
 
