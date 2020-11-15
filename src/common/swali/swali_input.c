@@ -143,7 +143,7 @@ uint8_t swali_input_read_reg(swali_input_data_t * data, uint8_t reg)
         value = 'N';
         break;
     case REG_STATE:
-        value = data->state;
+        value = data->last_switch_state;
         break;
     case REG_ENABLE:
         value = read_flag(data, FLAG_ENABLE);
