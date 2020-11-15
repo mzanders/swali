@@ -15,7 +15,7 @@ class Switch(Channel):
             nick = event.guid.nickname
             channel = event.data[4]
             if((nick, channel) in channels):
-                await channels[(nick, channel)].update(event.data[0] != 0x01)
+                await channels[(nick, channel)].update(event.data[0] != 0x00)
 
     @classmethod
     def events(cls):
