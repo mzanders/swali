@@ -74,7 +74,7 @@ async def who_is_there(vscp, nickname):
             offset = int(ev.data[0]) * 7
             raw[offset:offset + 7] = ev.data[1:]
 
-        guid = Guid(input=raw[0:16])
+        guid = Guid(bytes([byte for byte in reversed(raw[0:16])]))
         mdf = raw[16:].split(b'\0')[0].decode()
 
     return guid, mdf
