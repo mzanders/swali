@@ -10,7 +10,7 @@ class Gateway(TCP):
         """Initialize a Gateway object"""
         super().__init__(*args, **kwargs)
 
-        self.node = dict() # list of nodes
+        self.nodes = dict() # list of nodes
         self.ch = dict() # list of channels for each channel class
         self.ev = dict() # event sensitivity list, key = event type, value = list of classes for this type
         self.groups = dict()
@@ -39,14 +39,13 @@ class Gateway(TCP):
     async def scan(self):
         """Scan a gateway for SWALI devices, build the channel lists"""
         await self.quitloop()
-        nodes = dict()
 
         for nickname in range(128):
             (guid, mdf) = await who_is_there(self, nickname)
 
             if (guid, mdf) != (None, None):
                 node = await Node.new(self, nickname, guid, mdf)
-                nodes[nickname] = node
+                self.nodes[nickname] = node
                 if node.is_swali:
                     for channel_type in channel_reg:
                         self.ch[channel_type].update(node.channels[channel_type])
