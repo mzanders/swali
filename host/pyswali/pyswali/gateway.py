@@ -13,6 +13,7 @@ class Gateway(TCP):
         self.node = dict() # list of nodes
         self.ch = dict() # list of channels for each channel class
         self.ev = dict() # event sensitivity list, key = event type, value = list of classes for this type
+        self.groups = dict()
 
         for channel_type in channel_reg:
             self.ch[channel_type] = dict()
@@ -37,8 +38,6 @@ class Gateway(TCP):
 
     async def scan(self):
         """Scan a gateway for SWALI devices, build the channel lists"""
-        print('Scanning for VSCP SWALI CAN nodes.')
-
         await self.quitloop()
         nodes = dict()
 
@@ -52,10 +51,19 @@ class Gateway(TCP):
                     for channel_type in channel_reg:
                         self.ch[channel_type].update(node.channels[channel_type])
 
-        for nickname in nodes:
-            print('Nickname: {} - Channels: {} - Swali: {}'.format(nickname, nodes[nickname].pages, nodes[nickname].is_swali))
+        self.update_groups()
 
     def get_channels(self, identifier):
         return [obj for loc, obj in self.ch[identifier].items()]
 
-
+    def update_groups(self):
+        self.groups = dict()
+        for channel_type in channel_reg:
+            for (nick, ch_nr), channel in self.ch[channel_type].items():
+                if hasattr(channel, 'zone') and hasattr(channel, 'subzone'):
+                    group_id = (channel.zone, channel.subzone)
+                    if group_id != (0, 0):
+                        if group_id in self.groups:
+                            self.groups[group_id].add(channel)
+                        else:
+                            self.groups[group_id] = {channel}
