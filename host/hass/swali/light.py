@@ -1,11 +1,5 @@
 import logging
-
-from pyswali import gateway, light
-
-from homeassistant.const import EVENT_HOMEASSISTANT_STOP
-from pyswali import Gateway, Light
-
-from homeassistant.components.light import (Light)
+from homeassistant.components.light import (LightEntity)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -15,28 +9,20 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     #host = config[CONF_HOST]
     #username = config[CONF_USERNAME]
     #password = config.get(CONF_PASSWORD)
+    if discovery_info is None:
+        return
 
     # Setup connection with devices/cloud
-    gw = Gateway()
-    await gw.connect()
-    await gw.scan()
-
-    async def on_hass_stop(event):
-        """Close connection when hass stops."""
-        await gw.close()
-    hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, on_hass_stop)
+    gw = hass.data['swali']
 
     lights = [x for x in gw.get_channels('OU') if x.enabled]
 
     # Add devices
     async_add_entities(SwaliLight(light) for light in lights)
-
-    await gw.start_update()
-
     return True
 
 
-class SwaliLight(Light):
+class SwaliLight(LightEntity):
     """Representation of an Swali Light."""
 
     def __init__(self, light):
