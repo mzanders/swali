@@ -22,10 +22,11 @@ class Switch(Channel):
         return [(CLASS_INFORMATION, EVENT_INFORMATION_BUTTON)]
 
     @classmethod
-    async def new(cls, bus, nickname, channel):
+    async def new(cls, bus, nickname, channel, guid):
         self = cls()
         self.nickname = nickname
         self.channel = channel
+        self.guid = guid
         self.bus = bus
         self.callback = list()
 

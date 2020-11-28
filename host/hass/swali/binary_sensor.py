@@ -27,9 +27,8 @@ class SwaliBinarySensor(BinarySensorEntity):
     """Representation of an Swali Sensor (ie switch/button)."""
 
     def __init__(self, switch):
-        """Initialize an AwesomeLight."""
         self._sensor = switch
-        self._name = '{}:{}'.format(switch.nickname, switch.channel)
+        self._name = '{}:{:02X}'.format(switch.guid, switch.channel)
         self._state = switch.state
         switch.add_callback(self._callback)
 

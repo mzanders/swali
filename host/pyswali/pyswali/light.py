@@ -37,9 +37,10 @@ class Light(Channel):
                 await channels[(nick, channel)].update(False)
 
     @classmethod
-    async def new(cls, bus, nickname, channel):
+    async def new(cls, bus, nickname, channel, guid):
         self = cls()
         self.nickname = nickname
+        self.guid = guid
         self.channel = channel
         self.bus = bus
         self.callback = list()

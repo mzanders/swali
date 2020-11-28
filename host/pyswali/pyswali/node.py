@@ -28,7 +28,7 @@ class Node:
                 channel_type = (await read_reg(bus, nickname, channel, CHANNEL_TYPE, num=CHANNEL_TYPE_SIZE)).decode("utf-8")
                 if channel_type in channel_reg:
                     self.channels[channel_type][(nickname, channel)] = \
-                        await channel_reg[channel_type].new(bus, nickname, channel)
+                        await channel_reg[channel_type].new(bus, nickname, channel, guid)
 
         return self
 

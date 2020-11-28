@@ -23,6 +23,10 @@ async def main():
     for sw in switches:
         sw.add_callback(callback_switch)
 
+    for nick, node in gw.nodes.items():
+        print('{} - {}'.format(nick, node.guid))
+
+
     await gw.start_update()
 
     await asyncio.sleep(20.0)
