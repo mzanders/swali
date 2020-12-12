@@ -1,8 +1,12 @@
 from homeassistant.const import EVENT_HOMEASSISTANT_STOP
-from pyswali import Gateway, Switch, Light
+from .gateway import Gateway
+from .light import VSCP4HASSLight
+from .binary_sensor import VSCP4HASSBinarySensor
+from .const import VSCP4HASS_DOMAIN
 
-"""Support for VSCP swali."""
-DOMAIN = 'swali'
+"""Support for VSCP4HASS."""
+DOMAIN = VSCP4HASS_DOMAIN
+
 
 async def async_setup(hass, config):
     """controller setup code"""
@@ -21,6 +25,4 @@ async def async_setup(hass, config):
     hass.helpers.discovery.load_platform('binary_sensor', DOMAIN, {}, config)
 
     await gw.start_update()
-
-
     return True

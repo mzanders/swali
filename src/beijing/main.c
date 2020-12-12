@@ -46,6 +46,8 @@
 // function declarations
 void init_platform(void);
 
+const uint8_t vscp_node_mdf[32] = "beijing_z01";
+
 // function definitions
 int main()
 {

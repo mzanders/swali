@@ -15,7 +15,7 @@ async def write_reg(vscp, page, reg, nickname, value):
     if(len(value) > 4):
         raise ValueError('Register write limited to 4 bytes')
     data_prefix = struct.pack('>BHB', nickname, page, reg)
-    await vscp.send(event(vscp_class = CLASS_VSCP,
+    await vscp.send(Event(vscp_class = CLASS_VSCP,
                           vscp_type = EVENT_EXT_PAGE_WRITE,
                           data = data_prefix + value))
 
@@ -39,12 +39,12 @@ async def read_reg(vscp, nickname, page, reg, num=1):
 
     await vscp.send(tx_event)
 
-    await asyncio.sleep(0.001 * num + 0.01)
+    await asyncio.sleep(0.005 * num + 0.01)
     resp = await vscp.retr(int(num/4)+2)
     resp = [x for x in resp[1] if x.guid.nickname == nickname]
-    result=bytearray()
+    result=bytearray(num_cmd)
     for item in resp:
-        result[item.data[3]:item.data[3]+len(item.data)-4] = item.data[4:]
+        result[item.data[3]-reg:item.data[3]-reg+len(item.data)-4] = item.data[4:]
     return result
 
 async def read_std_reg(vscp, nickname, reg):

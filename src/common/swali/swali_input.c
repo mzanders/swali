@@ -1,6 +1,6 @@
 /* 
  * This file is part of Swali VSCP, https://www.github.com/swali_vscp.
- * Copyright (c) 2019 Maarten Zanders.
+ * Copyright (c) 2020 Maarten Zanders.
  * 
  * This program is free software: you can redistribute it and/or modify  
  * it under the terms of the GNU General Public License as published by  
@@ -20,6 +20,7 @@
 #include "time.h"
 #include "discrete.h"
 #include "vscp.h"
+#include "vscp4hass.h"
 
 static void input_debounce(void);
 static void send_control_event(swali_input_data_t * data);
@@ -28,20 +29,26 @@ static void send_info_event(swali_input_data_t * data, uint8_t state);
 
 static void write_flag(swali_input_data_t * data, uint8_t flag, uint8_t value);
 static uint8_t read_flag(swali_input_data_t * data, uint8_t flag);
+static uint8_t reg_range(uint8_t reg);
 
 #define FLAG_ENABLE       0x80
 #define FLAG_INVERT       0x20
 #define FLAG_TYPE_DIM     0x02 // provision for handling dimmers
 #define FLAG_TYPE_TOGGLE  0x01
 
+/* Register map, following VSCP4HASS binary sensor specification
+ *   No names are used (return all 0's).
+ */
 #define REG_ID0           0x00 // read only
 #define REG_ID1           0x01 // read only
-#define REG_STATE         0x02 // read only
-#define REG_ENABLE        0x03 // R/W
-#define REG_ZONE          0x04 // R/W
-#define REG_SUBZONE       0x05 // R/W
-#define REG_TYPE          0x06 // R/W  0 = pushbutton, 1 = toggle switch
-#define REG_INVERT        0x07 // R/W  1 = invert
+#define REG_ENABLE        0x02 // R/W
+#define REG_STATE         0x03 // read only
+#define REG_CLASS_ID      0x04 // R/W
+#define REG_NAME          0x10 // R/W max 16chars
+#define REG_ZONE          0x20 // R/W
+#define REG_SUBZONE       0x21 // R/W
+#define REG_TYPE          0x22 // R/W  0 = pushbutton, 1 = toggle switch
+#define REG_INVERT        0x23 // R/W  1 = invert
 
 #define SAMPLE_MODULUS    8
 
@@ -61,7 +68,8 @@ void swali_input_process(swali_input_data_t * data)
     {
         // always send button press event
         send_button_event(data, 1);
-        if (data->config->flags & FLAG_ENABLE)
+        if ((data->config->flags & FLAG_ENABLE) && 
+                (data->config->zone != 0xFF))
         {
             send_control_event(data);
         }
@@ -73,7 +81,9 @@ void swali_input_process(swali_input_data_t * data)
     {
         // always send button release event
         send_button_event(data, 0);
-        if ((data->config->flags & FLAG_ENABLE) && (data->config->flags & FLAG_TYPE_TOGGLE))
+        if ((data->config->flags & FLAG_ENABLE) && 
+                (data->config->flags & FLAG_TYPE_TOGGLE) && 
+                (data->config->zone != 0xFF))
         {
             send_control_event(data);
         }
@@ -106,7 +116,7 @@ void swali_input_handle_event(swali_input_data_t * data, vscp_event_t * event)
 
 void swali_input_write_reg(swali_input_data_t * data, uint8_t reg, uint8_t value)
 {
-    switch (reg)
+    switch (reg_range(reg))
     {
     case REG_ENABLE:
         write_flag(data, FLAG_ENABLE, value);
@@ -127,6 +137,16 @@ void swali_input_write_reg(swali_input_data_t * data, uint8_t reg, uint8_t value
     case REG_INVERT:
         write_flag(data, FLAG_INVERT, value);
         break;
+    
+    case REG_CLASS_ID:
+        if(value <= VSCP4HASS_BS_MAX_CLASS_ID)
+            data->config->class_id = value;
+        break;
+        
+    case REG_NAME:
+        if (((reg - REG_NAME) < SWALI_NAME_LENGTH) && ((reg - REG_NAME) < 16))
+            data->config->name[reg - REG_NAME] = value;
+            
     }
 }
 
@@ -134,19 +154,22 @@ uint8_t swali_input_read_reg(swali_input_data_t * data, uint8_t reg)
 {
     uint8_t value = 0;
 
-    switch (reg)
+    switch (reg_range(reg))
     {
     case REG_ID0:
-        value = 'I';
+        value = 'B';
         break;
     case REG_ID1:
-        value = 'N';
-        break;
-    case REG_STATE:
-        value = data->last_switch_state;
+        value = 'S';
         break;
     case REG_ENABLE:
         value = read_flag(data, FLAG_ENABLE);
+        break;
+    case REG_STATE:
+        value = data->last_switch_state; // this is the state of the input!
+        break;
+    case REG_CLASS_ID:
+        value = data->config->class_id;
         break;
     case REG_ZONE:
         value = data->config->zone;
@@ -160,6 +183,10 @@ uint8_t swali_input_read_reg(swali_input_data_t * data, uint8_t reg)
     case REG_INVERT:
         value = read_flag(data, FLAG_INVERT);
         break;
+    case REG_NAME:
+        if (((reg - REG_NAME) < SWALI_NAME_LENGTH) && ((reg - REG_NAME) < 16))
+            value = data->config->name[reg - REG_NAME];
+        break;
     }
     return value;
 }
@@ -167,13 +194,13 @@ uint8_t swali_input_read_reg(swali_input_data_t * data, uint8_t reg)
 static void send_control_event(swali_input_data_t * data)
 {
     vscp_event_t tx_event;
-
+   
     tx_event.priority = VSCP_PRIORITY_MEDIUM;
     tx_event.vscp_class = VSCP_CLASS1_CONTROL;
     tx_event.size = 3;
-    tx_event.data[0] = data->swali_channel; // optional;
-    tx_event.data[1] = data->config->zone; // all zones;
-    tx_event.data[2] = data->config->subzone; // all subzones;
+    tx_event.data[0] = data->swali_channel;
+    tx_event.data[1] = data->config->zone;
+    tx_event.data[2] = data->config->subzone;
 
     // toggle the state
     if (data->state)
@@ -188,16 +215,26 @@ static void send_control_event(swali_input_data_t * data)
 static void send_button_event(swali_input_data_t * data, uint8_t state)
 {
     vscp_event_t tx_event;
-    // send pushbutton event
+    uint8_t class_id = data->config->class_id;
+    
+    // send event for the configured class ID
+    if (class_id > VSCP4HASS_BS_MAX_CLASS_ID)
+        return;
+    
+// temporary only send simple ON/OFF events
+    tx_event.vscp_class = vscp4hass_bs_class_map[0].vscp_class;
+    if(state)
+        tx_event.vscp_type = vscp4hass_bs_class_map[0].vscp_event_on;
+    else
+        tx_event.vscp_type = vscp4hass_bs_class_map[0].vscp_event_off;
+    
     tx_event.priority = VSCP_PRIORITY_MEDIUM;
-    tx_event.vscp_class = VSCP_CLASS1_INFORMATION;
-    tx_event.vscp_type = VSCP_TYPE_INFORMATION_BUTTON;
-    tx_event.size = 5;
-    tx_event.data[0] = state; // button pressed (1) or released (0);
-    tx_event.data[1] = 255; // all zones;
-    tx_event.data[2] = 255; // all subzones;
-    tx_event.data[3] = 0; //MSB always 0
-    tx_event.data[4] = data->swali_channel; //this channel
+    
+    tx_event.size = 3;
+    tx_event.data[0] = data->swali_channel; // this channel
+    tx_event.data[1] = 255; // all zones/subzones, this ensures that other 
+    tx_event.data[2] = 255; // inputs don't process these as light state updates
+    
     swali_send_event(&tx_event);
 }
 
@@ -234,3 +271,13 @@ static uint8_t read_flag(swali_input_data_t * data, uint8_t flag)
         return 0;
 }
 
+static uint8_t reg_range(uint8_t reg)
+{
+    uint8_t value = reg;
+
+    if ((reg >= REG_NAME) &&
+            (reg < REG_NAME + 16))
+        value = REG_NAME;
+
+    return value;
+}

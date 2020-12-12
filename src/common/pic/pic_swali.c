@@ -26,8 +26,8 @@
 #include "swali.h"
 #include "swali_config.h"
 
-const uint8_t vscp_node_mdf[32] = "use local";
-const uint8_t vscp_std_id[8] = "SWALI";
+extern const uint8_t vscp_node_mdf[32];
+const uint8_t vscp_std_id[8] = "HASS";
 
 // CONFIGURATION DATA IN EEPROM
 // the entire blob of config data

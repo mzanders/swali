@@ -1,7 +1,9 @@
 channel_reg = {}
 
+
 class DuplicateIdentifierError(Exception):
     pass
+
 
 class Channel:
     """Base class for all channel classes to derive from"""

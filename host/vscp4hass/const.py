@@ -1,3 +1,5 @@
+VSCP4HASS_DOMAIN = 'vscp4hass'
+
 DEF_HOST = '127.0.0.1'
 DEF_PORT = 8598
 DEF_USER = None
