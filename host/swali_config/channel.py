@@ -23,16 +23,19 @@ class Channel:
             try:
                 if self.reglist[reg][0] == 'Name':
                     ui = input('New name? >')
-                    name = ui.encode('UTF-8')
-                    name = bytearray(name) + b'\00' * (16-len(name))
-                    for i in range(0,16,4):
-                        await self.node.write_reg(self.index, reg+i, name[i:i+4])
+                    await self.set_name(reg, ui)
                 else:
                     val = struct.pack('B', int(input('New value? >')))
                     await self.node.write_reg(self.index, reg, val)
             except (KeyError, IndexError):
                 print('Wrong input, try again!')
             await asyncio.sleep(0.1)
+
+    async def set_name(self, reg, name):
+        name = name.encode('UTF-8')
+        name = bytearray(name) + b'\00' * (16 - len(name))
+        for i in range(0, 16, 4):
+            await self.node.write_reg(self.index, reg + i, name[i:i + 4])
 
 class Light(Channel):
     def __init__(self, node, index):
@@ -58,6 +61,15 @@ class Light(Channel):
         reg_data = await self.node.read_reg(self.index, 0x10, 0x10)
         return reg_data.decode().rstrip('/x0')
 
+    async def enabled(self):
+        return await self.node.read_reg(self.index, 0x02, 0x01) != b'\00'
+
+    async def get_zone_subzone(self):
+        reg_data = await self.node.read_reg(self.index, 0x05, 0x02)
+        return int(reg_data[0]), int(reg_data[1])
+
+
+
 class Switch(Channel):
     def __init__(self, node, index):
         self.node = node
@@ -80,4 +92,10 @@ class Switch(Channel):
     async def name(self):
         reg_data = await self.node.read_reg(self.index, 0x10, 0x10)
         return reg_data.decode().rstrip('/x0')
+
+    async def quick_set(self, zone, subzone, name):
+        await self.node.write_reg(self.index, 0x02, b'\01')  # enable
+        await self.node.write_reg(self.index, 0x20, struct.pack('B', zone))
+        await self.node.write_reg(self.index, 0x21, struct.pack('B', subzone))
+        await self.set_name(0x10, name)
 
