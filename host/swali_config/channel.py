@@ -29,7 +29,6 @@ class Channel:
                         await self.node.write_reg(self.index, reg+i, name[i:i+4])
                 else:
                     val = struct.pack('B', int(input('New value? >')))
-                    print(val)
                     await self.node.write_reg(self.index, reg, val)
             except (KeyError, IndexError):
                 print('Wrong input, try again!')
@@ -70,7 +69,8 @@ class Switch(Channel):
                         0x20: ('Zone', True),
                         0x21: ('Subzone', True),
                         0x22: ('Type', True),
-                        0x23: ('Invert', True)}
+                        0x23: ('Invert', True),
+                        0x24: ('ON flash type', True)}
         self.num_registers = 40
 
     @staticmethod

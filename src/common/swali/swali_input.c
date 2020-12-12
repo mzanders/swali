@@ -49,6 +49,7 @@ static uint8_t reg_range(uint8_t reg);
 #define REG_SUBZONE       0x21 // R/W
 #define REG_TYPE          0x22 // R/W  0 = pushbutton, 1 = toggle switch
 #define REG_INVERT        0x23 // R/W  1 = invert
+#define REG_TURN_ON_VALUE 0x24 // R/W  0 = normal, 1 = fast flash, 2 = slow flash
 
 #define SAMPLE_MODULUS    8
 
@@ -146,6 +147,11 @@ void swali_input_write_reg(swali_input_data_t * data, uint8_t reg, uint8_t value
     case REG_NAME:
         if (((reg - REG_NAME) < SWALI_NAME_LENGTH) && ((reg - REG_NAME) < 16))
             data->config->name[reg - REG_NAME] = value;
+        break;
+    
+    case REG_TURN_ON_VALUE:
+        data->config->turn_on_value = value;
+        break;
             
     }
 }
@@ -187,6 +193,9 @@ uint8_t swali_input_read_reg(swali_input_data_t * data, uint8_t reg)
         if (((reg - REG_NAME) < SWALI_NAME_LENGTH) && ((reg - REG_NAME) < 16))
             value = data->config->name[reg - REG_NAME];
         break;
+    case REG_TURN_ON_VALUE:
+        value = data->config->turn_on_value;
+        break;
     }
     return value;
 }
@@ -198,17 +207,17 @@ static void send_control_event(swali_input_data_t * data)
     tx_event.priority = VSCP_PRIORITY_MEDIUM;
     tx_event.vscp_class = VSCP_CLASS1_CONTROL;
     tx_event.size = 3;
-    tx_event.data[0] = data->swali_channel;
     tx_event.data[1] = data->config->zone;
     tx_event.data[2] = data->config->subzone;
 
     // toggle the state
-    if (data->state)
+    if (data->state) {
+        tx_event.data[0] = 0;
         tx_event.vscp_type = VSCP_TYPE_CONTROL_TURNOFF;
-
-    else
+    } else {
+        tx_event.data[0] = data->config->turn_on_value;
         tx_event.vscp_type = VSCP_TYPE_CONTROL_TURNON;
-
+    }
     swali_send_event(&tx_event);
 }
 
