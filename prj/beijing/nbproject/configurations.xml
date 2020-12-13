@@ -163,7 +163,7 @@
         <property key="calibrate-oscillator-value" value="0x3400"/>
         <property key="clear-bss" value="true"/>
         <property key="code-model-external" value="wordwrite"/>
-        <property key="code-model-rom" value="default,-1000-1003"/>
+        <property key="code-model-rom" value=""/>
         <property key="create-html-files" value="true"/>
         <property key="data-model-ram" value=""/>
         <property key="data-model-size-of-double" value="24"/>
@@ -192,7 +192,7 @@
         <property key="managed-stack" value="false"/>
         <property key="opt-xc8-linker-file" value="true"/>
         <property key="opt-xc8-linker-link_startup" value="false"/>
-        <property key="opt-xc8-linker-serial" value="--serial=00000000@1000"/>
+        <property key="opt-xc8-linker-serial" value="--serial=00000000@7FC0"/>
         <property key="program-the-device-with-default-config-words" value="true"/>
         <property key="remove-unused-sections" value="true"/>
       </HI-TECH-LINK>
