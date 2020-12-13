@@ -18,11 +18,12 @@ static uint8_t timer_on(swali_output_data_t * data);
 
 #define REG_ID0           0x00 // read only
 #define REG_ID1           0x01 // read only
-#define REG_ENABLE        0x02 // R/W
-#define REG_CAPABILITIES  0x03 // Read only
-#define REG_STATE         0x04 // read only
-#define REG_ZONE          0x05 // R/W
-#define REG_SUBZONE       0x06 // R/W
+#define REG_VERSION       0x02 // read only
+#define REG_ENABLE        0x03 // R/W
+#define REG_CAPABILITIES  0x04 // Read only
+#define REG_STATE         0x05 // read only
+#define REG_ZONE          0x06 // R/W
+#define REG_SUBZONE       0x07 // R/W
 #define REG_NAME          0x10 // R/W max 16chars
 #define REG_ON_TIME_HRS   0x20 // R/W
 #define REG_ON_TIME_MINS  0x21 // R/W  HRS==0 && MINS==0 > no timer
@@ -179,6 +180,9 @@ uint8_t swali_output_read_reg(swali_output_data_t * data, uint8_t reg)
         break;
     case REG_ID1:
         value = 'I';
+        break;
+    case REG_VERSION:
+        value = 0;
         break;
     case REG_ENABLE:
         value = read_flag(data, FLAG_ENABLE);

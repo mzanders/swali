@@ -41,10 +41,10 @@ class Light(Channel):
     def __init__(self, node, index):
         self.node = node
         self.index = index
-        self.reglist = {0x02: ('Enable', True),
-                        0x04: ('State', True),
-                        0x05: ('Zone', True),
-                        0x06: ('Subzone', True),
+        self.reglist = {0x03: ('Enable', True),
+                        0x05: ('State', True),
+                        0x06: ('Zone', True),
+                        0x07: ('Subzone', True),
                         0x10: ('Name', True),
                         0x20: ('On time hrs', True),
                         0x21: ('On time mins', True),
@@ -62,10 +62,10 @@ class Light(Channel):
         return reg_data.decode().rstrip('/x0')
 
     async def enabled(self):
-        return await self.node.read_reg(self.index, 0x02, 0x01) != b'\00'
+        return await self.node.read_reg(self.index, 0x03, 0x01) != b'\00'
 
     async def get_zone_subzone(self):
-        reg_data = await self.node.read_reg(self.index, 0x05, 0x02)
+        reg_data = await self.node.read_reg(self.index, 0x06, 0x02)
         return int(reg_data[0]), int(reg_data[1])
 
 
@@ -74,9 +74,9 @@ class Switch(Channel):
     def __init__(self, node, index):
         self.node = node
         self.index = index
-        self.reglist = {0x02: ('Enable', True),
-                        0x03: ('State', False),
-                        0x04: ('Class ID', True),
+        self.reglist = {0x03: ('Enable', True),
+                        0x04: ('State', False),
+                        0x05: ('Class ID', True),
                         0x10: ('Name', True),
                         0x20: ('Zone', True),
                         0x21: ('Subzone', True),
@@ -94,7 +94,7 @@ class Switch(Channel):
         return reg_data.decode().rstrip('/x0')
 
     async def quick_set(self, zone, subzone, name):
-        await self.node.write_reg(self.index, 0x02, b'\01')  # enable
+        await self.node.write_reg(self.index, 0x03, b'\01')  # enable
         await self.node.write_reg(self.index, 0x20, struct.pack('B', zone))
         await self.node.write_reg(self.index, 0x21, struct.pack('B', subzone))
         await self.set_name(0x10, name)

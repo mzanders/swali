@@ -41,9 +41,10 @@ static uint8_t reg_range(uint8_t reg);
  */
 #define REG_ID0           0x00 // read only
 #define REG_ID1           0x01 // read only
-#define REG_ENABLE        0x02 // R/W
-#define REG_STATE         0x03 // read only
-#define REG_CLASS_ID      0x04 // R/W
+#define REG_VERSION       0x02 // read only
+#define REG_ENABLE        0x03 // R/W
+#define REG_STATE         0x04 // read only
+#define REG_CLASS_ID      0x05 // R/W
 #define REG_NAME          0x10 // R/W max 16chars
 #define REG_ZONE          0x20 // R/W
 #define REG_SUBZONE       0x21 // R/W
@@ -167,6 +168,9 @@ uint8_t swali_input_read_reg(swali_input_data_t * data, uint8_t reg)
         break;
     case REG_ID1:
         value = 'S';
+        break;
+    case REG_VERSION:
+        value = 0;
         break;
     case REG_ENABLE:
         value = read_flag(data, FLAG_ENABLE);
