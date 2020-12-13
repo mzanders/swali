@@ -2,6 +2,27 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/common/swali/swali_input.h</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/common/swali/swali_output.c</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/common/pic/pic_swali.c</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/common/swali/swali_output.h</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/paris/swali_config.h</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/common/swali/swali.h</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/common/vscp/vscp.c</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/common/pic/systick.c</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/common/swali/swali.c</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/common/pic/configuration.c</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/common/vscp/vscp4hass.h</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/common/vscp/vscp_class.h</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/common/pic/configuration.h</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/common/vscp/vscp_registers.h</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/common/vscp/vscp4hass.c</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/common/vscp/vscp.h</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/common/util/time.c</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/common/pic/pic_swali.h</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/common/swali/swali_input.c</file>
+            <file>file:/home/maarten/workspace/vscp/vscp4hass/src/paris/main.c</file>
+        </group>
     </open-files>
 </project-private>

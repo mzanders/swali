@@ -1,7 +1,5 @@
 import asyncio
 from .event import Event
-from .guid import Guid
-from .filter import Filter
 from .const import (DEF_HOST, DEF_PORT, DEF_USER, DEF_PASSWORD)
 
 # internal helpers

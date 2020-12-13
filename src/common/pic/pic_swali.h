@@ -32,8 +32,7 @@ extern const uint16_t config_data_size;
 // special entries in config data
 #define CONFIG_BOOT     0x00   // 0xFF = enter boot, 0xAA = valid data
 #define CONFIG_NICKNAME 0x01   // 0xFF is invalid
-#define CONFIG_GUID     0x02   // 4 bytes, other bytes of GUID set to 0
-#define CONFIG_UID      0x06   // 5 bytes
+#define CONFIG_UID      0x02   // 5 bytes
 #define CONFIG_SWALI    0x10   // start of swali config struct, max 240bytes
 
 

@@ -36,6 +36,7 @@ extern "C" {
 
     typedef struct {
         uint16_t last_time_ms;
+        uint16_t flash_timer;
         uint8_t swali_channel;
         uint8_t state;
         uint8_t last_state;

@@ -18,16 +18,18 @@ static uint8_t timer_on(swali_output_data_t * data);
 
 #define REG_ID0           0x00 // read only
 #define REG_ID1           0x01 // read only
-#define REG_STATE         0x02 // read only
+#define REG_VERSION       0x02 // read only
 #define REG_ENABLE        0x03 // R/W
-#define REG_ZONE          0x04 // R/W
-#define REG_SUBZONE       0x05 // R/W
-#define REG_INVERT        0x07 // R/W  1 = invert
-#define REG_ON_TIME_HRS   0x08 // R/W
-#define REG_ON_TIME_MINS  0x09 // R/W  HRS==0 && MINS==0 > no timer
-#define REG_ACT_TIME_HRS  0x0A // R
-#define REG_ACT_TIME_MINS 0x0B // R
+#define REG_CAPABILITIES  0x04 // Read only
+#define REG_STATE         0x05 // read only
+#define REG_ZONE          0x06 // R/W
+#define REG_SUBZONE       0x07 // R/W
 #define REG_NAME          0x10 // R/W max 16chars
+#define REG_ON_TIME_HRS   0x20 // R/W
+#define REG_ON_TIME_MINS  0x21 // R/W  HRS==0 && MINS==0 > no timer
+#define REG_ACT_TIME_HRS  0x22 // R
+#define REG_ACT_TIME_MINS 0x23 // R
+#define REG_INVERT        0x24 // R/W  1 = invert
 
 void swali_output_initialize(uint8_t swali_channel, swali_output_config_t * config, swali_output_data_t * data)
 {
@@ -36,6 +38,7 @@ void swali_output_initialize(uint8_t swali_channel, swali_output_config_t * conf
     data->state = 0;
     data->last_state = 0;
     data->last_time_ms = time_get_ms();
+    data->flash_timer = 0;
     data->on_time_hrs = 0;
     data->on_time_mins = 0;
     update_output(data);
@@ -107,7 +110,7 @@ void swali_output_handle_event(swali_output_data_t * data, vscp_event_t * event)
     {
         if (event->vscp_type == VSCP_TYPE_CONTROL_TURNOFF)
         {
-            if (data->state == 1)
+            if (data->state)
             {
                 data->state = 0; // switch the state off
             }
@@ -123,7 +126,7 @@ void swali_output_handle_event(swali_output_data_t * data, vscp_event_t * event)
         {
             if (data->state == 0)
             {
-                data->state = 1; // switch the state on
+                data->state = 1 + event->data[0]; // switch the state on
             }
             else
             {
@@ -141,6 +144,9 @@ void swali_output_write_reg(swali_output_data_t * data, uint8_t reg, uint8_t val
     {
     case REG_ENABLE:
         write_flag(data, FLAG_ENABLE, value);
+        break;
+    case REG_STATE:
+        data->state = value;
         break;
     case REG_ZONE:
         data->config->zone = value;
@@ -170,16 +176,22 @@ uint8_t swali_output_read_reg(swali_output_data_t * data, uint8_t reg)
     switch (reg_range(reg))
     {
     case REG_ID0:
-        value = 'O';
+        value = 'L';
         break;
     case REG_ID1:
-        value = 'U';
+        value = 'I';
         break;
-    case REG_STATE:
-        value = data->state;
+    case REG_VERSION:
+        value = 0;
         break;
     case REG_ENABLE:
         value = read_flag(data, FLAG_ENABLE);
+        break;
+    case REG_CAPABILITIES:
+        value = 0x08;
+        break;
+    case REG_STATE:
+        value = data->state;
         break;
     case REG_ZONE:
         value = data->config->zone;
@@ -246,10 +258,24 @@ static void send_info_event(swali_output_data_t * data)
 
 static void update_output(swali_output_data_t * data)
 {
+    uint8_t pin_value;
+    uint16_t now;
+    
+    now = time_get_ms();
+    pin_value = (data->state > 0);
+    
+    if(data->last_state == 0 && data->state != 0)
+        data->flash_timer = now;
+    
+    if(data->state == 2)
+        pin_value = ((now - data->flash_timer) % 1024) < 512;
+                
+    if(data->state == 3)
+        pin_value = ((now - data->flash_timer) % 4096) < 2048;
+                
     if (data->config->flags & FLAG_INVERT)
-        discrete_write(data->swali_channel, !data->state);
-    else
-        discrete_write(data->swali_channel, data->state);
+        pin_value = !pin_value;
+    discrete_write(data->swali_channel, pin_value);
 }
 
 static void write_flag(swali_output_data_t * data, uint8_t flag, uint8_t value)

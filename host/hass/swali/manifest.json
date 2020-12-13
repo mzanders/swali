@@ -1,9 +1,0 @@
-{
-  "domain": "swali",
-  "name": "swali",
-  "documentation": "https://github.com/none/so/far",
-  "config_flow": false,
-  "dependencies": [],
-  "codeowners": [],
-  "requirements": ["pyswali>=0.0.1"]
-}

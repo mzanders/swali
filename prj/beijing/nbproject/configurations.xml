@@ -30,6 +30,7 @@
         <itemPath>../../src/common/vscp/vscp_class.h</itemPath>
         <itemPath>../../src/common/vscp/vscp_registers.h</itemPath>
         <itemPath>../../src/common/vscp/vscp_type.h</itemPath>
+        <itemPath>../../src/common/vscp/vscp4hass.h</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
@@ -59,6 +60,7 @@
       </logicalFolder>
       <logicalFolder name="vscp" displayName="vscp" projectFiles="true">
         <itemPath>../../src/common/vscp/vscp.c</itemPath>
+        <itemPath>../../src/common/vscp/vscp4hass.c</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
@@ -190,7 +192,7 @@
         <property key="managed-stack" value="false"/>
         <property key="opt-xc8-linker-file" value="true"/>
         <property key="opt-xc8-linker-link_startup" value="false"/>
-        <property key="opt-xc8-linker-serial" value=""/>
+        <property key="opt-xc8-linker-serial" value="--serial=00000000@7FC0"/>
         <property key="program-the-device-with-default-config-words" value="true"/>
         <property key="remove-unused-sections" value="true"/>
       </HI-TECH-LINK>

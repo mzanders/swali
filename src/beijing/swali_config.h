@@ -24,7 +24,7 @@ extern "C" {
 
 #define SWALI_NUM_INPUTS 10
 #define SWALI_NUM_OUTPUTS 0
-#define SWALI_NAME_LENGTH 16 // number of characters to store for outputs
+#define SWALI_NAME_LENGTH 16  // number of characters to store for outputs
     
 #ifdef	__cplusplus
 }

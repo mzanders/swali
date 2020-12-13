@@ -26,14 +26,21 @@
 #include "swali.h"
 #include "swali_config.h"
 
-const uint8_t vscp_node_mdf[32] = "use local";
-const uint8_t vscp_std_id[8] = "SWALI";
+extern const uint8_t vscp_node_mdf[32];
+const uint8_t vscp_std_id[8] = "HASS";
 
 // CONFIGURATION DATA IN EEPROM
 // the entire blob of config data
 char config_data[256];
 const uint16_t config_data_size = sizeof(config_data);
 
+// Set your GUID base address in the linker option called "SERIAL"
+// or use HEXMATE: ./hexmate ~/paris.hex +-serial=FF000003@7fc > ~/FF000003.hex
+extern const int _serial0;
+// Adapt to suit your GUID base (ie first 12 bytes)
+const uint8_t vscp_guid_base[12] = {0x00, 0x00, 0x00, 0x00,
+                                    0x00, 0x00, 0x00, 0x00,
+                                    0x00, 0x00, 0x00, 0x00};
 
 // pointer to swali struct, located at an offset inside config_data
 uint8_t *config_swali = (uint8_t*)&(config_data[CONFIG_SWALI]);
@@ -86,7 +93,9 @@ uint8_t process_button(void)
 }
 
 void vscp_message_handler(vscp_message_t * message)
-{
+{    
+    uint8_t * vscp_guid = (uint8_t*)&(_serial0);
+    
     switch (message->type)
     {
     case VSCP_MSG_ENTER_BOOT:
@@ -137,23 +146,14 @@ void vscp_message_handler(vscp_message_t * message)
         message->length = 2;
         break;
 
-    case VSCP_GET | VSCP_MSG_GUID:
+    case VSCP_GET | VSCP_MSG_GUID:                        
         if (message->value[0] < 16)
         {
             message->length = 2;
             if (message->value[0] >= 12)
-                message->value[1] = config_data[CONFIG_GUID + message->value[0] - 12];
+                message->value[1] = vscp_guid[message->value[0] - 12];
             else
-                message->value[1] = 0;
-        }
-        break;
-
-        // Not really meant to be setting the GUID, but it's convenient so what the heck :-)
-    case VSCP_SET | VSCP_MSG_GUID:
-        if (message->value[0] < 16)
-        {
-            if (message->value[0] >= 12)
-                config_data[CONFIG_GUID + message->value[0] - 12] = message->value[1];
+                message->value[1] = vscp_guid_base[message->value[0]];
         }
         break;
 

@@ -28,6 +28,9 @@ extern "C" {
         uint8_t flags;
         uint8_t zone;
         uint8_t subzone;
+        uint8_t class_id;
+        uint8_t turn_on_value;
+        char name [SWALI_NAME_LENGTH];
     } swali_input_config_t;
 
     typedef struct {
