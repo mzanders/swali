@@ -116,7 +116,11 @@ def iter_hex(bus, ih, verify=False, progress=True):
                 if(verify):
                     rb = send_msg(bus, msg.get_data)
                     if rb != data_buffer:
+                        print('')
                         print('Error during verification at 0x{:06X}'.format(i))
+                        expected = ['{:02X} '.format(b) for b in data_buffer]
+                        returned = ['{:02X} '.format(b) for b in rb]
+                        print('Expected {}, got {}.'.format(expected, returned))
                         exit(0)
                 else:
                     send_msg(bus, msg.put_data, data_buffer)
