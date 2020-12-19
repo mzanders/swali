@@ -55,6 +55,8 @@ async def binding_mode(gw):
             print('Invalid entry!')
         except NoInput:
             print('Did not get an input!')
+        except AttributeError:
+            print('On/off event didn\'t come from switch?')
 
 
 

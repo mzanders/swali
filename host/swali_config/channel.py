@@ -3,19 +3,19 @@ import asyncio
 
 
 class Channel:
+    async def show(self):
+        reg_data = await self.node.read_reg(self.index, 0, self.num_registers)
+        for reg, (descr, writeable) in self.reglist.items():
+            if descr == 'Name':
+                val = self._get_name(reg_data)
+            else:
+                val = int(reg_data[reg])
+            print(' {:2} - {:18}{}: {}'.format(reg, descr, ' ' if writeable else 'R', val))
+
     async def menu(self):
         while True:
-            print('Reading channel registers...')
-            reg_data = await self.node.read_reg(self.index, 0, self.num_registers)
-            print('Select a register to change or q to quit.')
-            for reg, (descr, writeable) in self.reglist.items():
-                if descr == 'Name':
-                    val = self._get_name(reg_data)
-                else:
-                    val = int(reg_data[reg])
-                print(' {:2} - {:18}{}: {}'.format(reg, descr, ' ' if writeable else 'R', val))
-
-            ui = input('> ')
+            await self.show()
+            ui = input('Select a register to change or q to quit. > ')
             if ui == 'q':
                 break
             reg = int(ui)
@@ -94,8 +94,19 @@ class Switch(Channel):
         return reg_data.decode().rstrip('/x0')
 
     async def quick_set(self, zone, subzone, name):
-        await self.node.write_reg(self.index, 0x03, b'\01')  # enable
-        await self.node.write_reg(self.index, 0x20, struct.pack('B', zone))
-        await self.node.write_reg(self.index, 0x21, struct.pack('B', subzone))
-        await self.set_name(0x10, name)
+        write = True
+
+        if await self.node.read_reg(self.index, 0x03, 1) != b'\x00':
+            print('Switch channel already configured:')
+            await self.show()
+            text = input('Are you sure you want to overwrite these values (y/Y/yes to confirm)? > ')
+            if text not in ['y', 'yes', 'Y']:
+                write = False
+                print('OK, not writing!')
+
+        if write:
+            await self.node.write_reg(self.index, 0x03, b'\01')  # enable
+            await self.node.write_reg(self.index, 0x20, struct.pack('B', zone))
+            await self.node.write_reg(self.index, 0x21, struct.pack('B', subzone))
+            await self.set_name(0x10, name)
 
