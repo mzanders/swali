@@ -10,7 +10,7 @@ class NoInput(Exception):
 def show_nodes(gw):
     print('Node list')
     for nick, node in gw.nodes.items():
-        print('{:3} - {:14} - {}'.format(nick, type(node).__name__, node.version))
+        print('{:3} - {:32} - {}'.format(nick, node.mdf, node.version))
 
 async def wait_onoff_event(vscp):
     await vscp.quitloop()

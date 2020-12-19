@@ -1,7 +1,7 @@
 from vscp.util import who_is_there
 from vscp.tcp import TCP
 from vscp.filter import Filter
-#from .node import Node
+from node import Node
 
 
 class Gateway(TCP):
@@ -29,9 +29,10 @@ class Gateway(TCP):
             if (guid, mdf) != (None, None):
                 try:
                     device_obj = __import__(mdf)
-                    self.nodes[nickname] = await getattr(device_obj, mdf.title()).new(self, nickname)
-                except ImportError:
-                    print('   ignored!')
+                    self.nodes[nickname] = await getattr(device_obj, mdf.title()).new(self, nickname, guid, mdf)
+                except (ImportError, ValueError):
+                    self.nodes[nickname] = Node(self, nickname)
+                    await self.nodes[nickname].init()
 
                 #node = await Node.new(self, nickname, guid, mdf)
                 #self.nodes[nickname] = node

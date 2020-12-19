@@ -71,8 +71,9 @@ async def who_is_there(vscp, nickname):
         # assemble all the data in order
         raw = bytearray(7 * 7)
         for ev in filtered:
-            offset = int(ev.data[0]) * 7
-            raw[offset:offset + 7] = ev.data[1:]
+            if len(ev.data) == 8:
+                offset = int(ev.data[0]) * 7
+                raw[offset:offset + 7] = ev.data[1:]
 
         guid = Guid(bytes([byte for byte in reversed(raw[0:16])]))
         mdf = raw[16:].split(b'\0')[0].decode()
