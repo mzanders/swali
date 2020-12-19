@@ -25,9 +25,11 @@
 #include "led.h"
 #include "swali.h"
 #include "swali_config.h"
+#include "fw_version.h"
 
 extern const uint8_t vscp_node_mdf[32];
 const uint8_t vscp_std_id[8] = "HASS";
+const uint8_t version[3] = {FW_VERSION_MAJOR, FW_VERSION_MINOR, FW_VERSION_MICRO};
 
 // CONFIGURATION DATA IN EEPROM
 // the entire blob of config data
@@ -189,6 +191,14 @@ void vscp_message_handler(vscp_message_t * message)
         {
             message->length = 2;
             message->value[1] = vscp_std_id[message->value[0]];
+        }
+        break;
+    
+    case VSCP_GET | VSCP_MSG_FWVERSION:
+        if (message->value[0] < 3)
+        {
+            message->length = 2;
+            message->value[1] = version[message->value[0]];
         }
         break;
     }

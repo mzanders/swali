@@ -32,6 +32,7 @@
         <itemPath>../../src/common/vscp/vscp_type.h</itemPath>
         <itemPath>../../src/common/vscp/vscp4hass.h</itemPath>
       </logicalFolder>
+      <itemPath>../../src/common/fw_version.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -71,10 +72,7 @@
   </logicalFolder>
   <sourceRootList>
     <Elem>../../src/beijing</Elem>
-    <Elem>../../src/common/swali</Elem>
-    <Elem>../../src/common/util</Elem>
-    <Elem>../../src/common/vscp</Elem>
-    <Elem>../../src/common/pic</Elem>
+    <Elem>../../src/common</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -124,7 +122,7 @@
         <property key="define-macros" value="_PLIB"/>
         <property key="disable-optimizations" value="false"/>
         <property key="extra-include-directories"
-                  value="..\..\src\beijing;..\..\src\common\pic;..\..\src\common\swali;..\..\src\common\util;..\..\src\common\vscp"/>
+                  value="..\..\src\beijing;..\..\src\common\pic;..\..\src\common\swali;..\..\src\common\util;..\..\src\common\vscp;..\..\src\common"/>
         <property key="favor-optimization-for" value="-speed,+space"/>
         <property key="garbage-collect-data" value="true"/>
         <property key="garbage-collect-functions" value="true"/>

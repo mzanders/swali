@@ -14,10 +14,7 @@
             <make-dep-projects/>
             <sourceRootList>
                 <sourceRootElem>../../src/paris</sourceRootElem>
-                <sourceRootElem>../../src/common/swali</sourceRootElem>
-                <sourceRootElem>../../src/common/util</sourceRootElem>
-                <sourceRootElem>../../src/common/vscp</sourceRootElem>
-                <sourceRootElem>../../src/common/pic</sourceRootElem>
+                <sourceRootElem>../../src/common</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>

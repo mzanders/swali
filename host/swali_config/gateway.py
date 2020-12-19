@@ -29,7 +29,7 @@ class Gateway(TCP):
             if (guid, mdf) != (None, None):
                 try:
                     device_obj = __import__(mdf)
-                    self.nodes[nickname] = getattr(device_obj, mdf.title())(self, nickname)
+                    self.nodes[nickname] = await getattr(device_obj, mdf.title()).new(self, nickname)
                 except ImportError:
                     print('   ignored!')
 

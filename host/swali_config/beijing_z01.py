@@ -9,6 +9,8 @@ class Beijing_Z01(Node):
         for i in range(10):
             self.channels.append(Switch(self, i))
 
-
-
-
+    @classmethod
+    async def new(cls, gw, nick):
+        node = cls(gw, nick)
+        await node.init()
+        return node
