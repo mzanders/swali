@@ -1,6 +1,6 @@
 from vscp.util import write_reg, read_reg
-from vscp.const import STD_REG_FW_MAJOR, STD_REG_MDF
-
+from vscp.const import STD_REG_FW_MAJOR, STD_REG_MDF, STD_REG_GUID
+from vscp.guid import Guid
 
 class Version:
     def __init__(self, raw):
@@ -26,7 +26,7 @@ class Node:
         if self.mdf is None:
             self.mdf = (await read_reg(self.gw, self.nick, 0, STD_REG_MDF, 32)).decode().rstrip('/x0')
         if self.guid is None:
-            self.guid = (await read_reg(self.gw, self.nick, 0, STD_REG_MDF, 32)).decode().rstrip('/x0')
+            self.guid = Guid(await read_reg(self.gw, self.nick, 0, STD_REG_GUID, 16))
 
     async def read_reg(self, channel, reg, num=1):
         return await read_reg(self.gw, self.nick, channel, reg, num)
@@ -35,6 +35,7 @@ class Node:
         await write_reg(self.gw, channel, reg, self.nick, value)
 
     async def menu(self):
+        print('GUID: {}'.format(self.guid))
         while True:
             print('Select channel, b to enter bootloader, q to quit.  > ')
             for i, channel in enumerate(self.channels):
