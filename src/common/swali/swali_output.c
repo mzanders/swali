@@ -110,30 +110,24 @@ void swali_output_handle_event(swali_output_data_t * data, vscp_event_t * event)
     {
         if (event->vscp_type == VSCP_TYPE_CONTROL_TURNOFF)
         {
-            if (data->state)
-            {
-                data->state = 0; // switch the state off
-            }
-            else
+            if (!data->state)
             {
                 // a slave was not synchronized, this ensures an info update
                 // is sent out on the next process cycle
                 data->last_state = 1;
             }
+            data->state = 0; // switch the state off
 
         }
         if (event->vscp_type == VSCP_TYPE_CONTROL_TURNON)
         {
-            if (data->state == 0)
-            {
-                data->state = 1 + event->data[0]; // switch the state on
-            }
-            else
+            if (data->state)
             {
                 // a slave was not synchronized, this ensures an info update
                 // is sent out on the next process cycle
                 data->last_state = 0;
             }
+            data->state = 1 + event->data[0];
         }
     }
 }
